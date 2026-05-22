@@ -20,7 +20,7 @@ namespace Welington_II
             IPlaywright playwright = await Playwright.CreateAsync();
             IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
-                Headless = false
+                Headless = true
             });
             IPage page = await browser.NewPageAsync();
             await page.GotoAsync("https://pncp.gov.br/app/editais?pagina=1");

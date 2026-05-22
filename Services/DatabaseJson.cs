@@ -157,9 +157,9 @@ namespace Welington_II.Services
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                // Windows: C:\Users\Usuario\AppData\Local\WelingtonII
+                // Windows: C:\Users\Usuario\Documents\WelingtonII
                 homePath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                     "WelingtonII"
                 );
             }

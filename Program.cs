@@ -77,7 +77,7 @@ class Program
             await SistemaExternoApi.AguardarApiDisponivel();
 
             Console.WriteLine("\n⚙️ Configurações:");
-            int maxConcorrencia = 3;
+            int maxConcorrencia = 5;
             Console.WriteLine($"   Processos simultâneos: {maxConcorrencia}");
             Console.WriteLine($"   Intervalo entre ciclos: 4 horas");
 
