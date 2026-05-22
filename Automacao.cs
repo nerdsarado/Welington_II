@@ -12,19 +12,82 @@ namespace Welington_II
 
         public static async Task<IPage> InicializarBrowser()
         {
-            string browsersPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Navegadores");
-            Environment.SetEnvironmentVariable("PLAYWRIGHT_BROWSERS_PATH", browsersPath);
-
-            // Força a recarga da variável de ambiente (evita cache)
-            Environment.SetEnvironmentVariable("PLAYWRIGHT_BROWSERS_PATH", browsersPath, EnvironmentVariableTarget.Process);
-            IPlaywright playwright = await Playwright.CreateAsync();
-            IBrowser browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+            try
             {
-                Headless = true
-            });
-            IPage page = await browser.NewPageAsync();
-            await page.GotoAsync("https://pncp.gov.br/app/editais?pagina=1");
-            return page;
+                Console.WriteLine("🚀 Inicializando Playwright...");
+
+                // 🔥 ENCONTRA O CHROMIUM NA PASTA DO EXECUTÁVEL
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string chromiumPath = null;
+
+                // Procura o Chromium na pasta Navegadores
+                string[] possiblePaths = new[]
+                {
+            Path.Combine(baseDir, "Navegadores", "chromium-1194", "chrome-win", "chrome.exe"),
+            Path.Combine(baseDir, "Navegadores", "chromium-1223", "chrome-win", "chrome.exe"),
+            Path.Combine(baseDir, "Navegadores", "chromium-1208", "chrome-win", "chrome.exe"),
+            Path.Combine(baseDir, "Navegadores", "chrome-win", "chrome.exe"),
+            // Fallback: tenta encontrar em qualquer subpasta
+            Path.Combine(baseDir, "Navegadores", "chromium-*", "chrome-win", "chrome.exe")
+        };
+
+                foreach (var path in possiblePaths)
+                {
+                    if (path.Contains("*"))
+                    {
+                        // Procura por padrão curinga
+                        var dirs = Directory.GetDirectories(Path.GetDirectoryName(path) ?? baseDir, "chromium-*");
+                        foreach (var dir in dirs)
+                        {
+                            string testPath = Path.Combine(dir, "chrome-win", "chrome.exe");
+                            if (File.Exists(testPath))
+                            {
+                                chromiumPath = testPath;
+                                break;
+                            }
+                        }
+                    }
+                    else if (File.Exists(path))
+                    {
+                        chromiumPath = path;
+                        break;
+                    }
+                }
+
+                if (chromiumPath != null && File.Exists(chromiumPath))
+                {
+                    Console.WriteLine($"📁 Chromium encontrado: {chromiumPath}");
+                }
+                else
+                {
+                    Console.WriteLine("⚠️ Chromium não encontrado na pasta local.");
+                }
+
+                var playwright = await Playwright.CreateAsync();
+
+                var launchOptions = new BrowserTypeLaunchOptions
+                {
+                    Headless = true
+                };
+
+                if (chromiumPath != null && File.Exists(chromiumPath))
+                {
+                    launchOptions.ExecutablePath = chromiumPath;
+                }
+
+                Console.WriteLine("🌐 Lançando Chromium...");
+                var browser = await playwright.Chromium.LaunchAsync(launchOptions);
+                var page = await browser.NewPageAsync();
+                await page.GotoAsync("https://pncp.gov.br/app/editais?pagina=1");
+
+                Console.WriteLine("✅ Navegador inicializado com sucesso!");
+                return page;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Erro ao inicializar navegador: {ex.Message}");
+                throw;
+            }
         }
 
         public static async Task SelecionarEstado(IPage page, string estado)

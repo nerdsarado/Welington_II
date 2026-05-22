@@ -66,7 +66,6 @@ class Program
     {
         IPage page = null;
         IBrowser browser = null;
-        IPlaywright playwright = null;
 
         try
         {
